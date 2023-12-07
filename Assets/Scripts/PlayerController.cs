@@ -20,6 +20,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] TextMeshProUGUI rpmText;
     [SerializeField] float rpm;
 
+    [SerializeField] List<WheelCollider> allWheels;
+    [SerializeField] int wheelsOnGround;
+
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();    
@@ -32,17 +35,42 @@ public class PlayerController : MonoBehaviour
         // this is where we get player input
         horizontalInput = Input.GetAxis("Horizontal");
         forwardInput = Input.GetAxis("Vertical");
-       
-        // moves the car forward based on vertical input
-        // transform.Translate(Vector3.forward * Time.deltaTime * speed * forwardInput);
-        // Rotates the car based on horizontal input
-        transform.Rotate(Vector3.up, Time.deltaTime * turnSpeed * horizontalInput);
 
-        playerRb.AddRelativeForce(Vector3.forward * horsePower * forwardInput);
+        if (IsOnGround())
+        {
+            // moves the car forward based on vertical input
+            // transform.Translate(Vector3.forward * Time.deltaTime * speed * forwardInput);
+            // Rotates the car based on horizontal input
+            transform.Rotate(Vector3.up, Time.deltaTime * turnSpeed * horizontalInput);
 
-        speed = Mathf.RoundToInt(playerRb.velocity.magnitude * 2.237f); // For KPH CHANGE 2.237 TO 3.6
-        speedometerText.SetText("Speed: " + speed + "mph");
-        rpm = Mathf.Round((speed % 30) * 40);
-        rpmText.SetText("RPM: " + rpm);
+            playerRb.AddRelativeForce(Vector3.forward * horsePower * forwardInput);
+
+            speed = Mathf.RoundToInt(playerRb.velocity.magnitude * 2.237f); // For KPH CHANGE 2.237 TO 3.6
+            speedometerText.SetText("Speed: " + speed + "mph");
+            rpm = Mathf.Round((speed % 30) * 40);
+            rpmText.SetText("RPM: " + rpm);
+        }
+    }
+
+    bool IsOnGround()
+    {
+        wheelsOnGround = 0;
+
+        foreach (WheelCollider wheel in allWheels)
+        {
+            if (wheel.isGrounded)
+            {
+                wheelsOnGround++;
+            }
+        }
+
+        if (wheelsOnGround == 4)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }
